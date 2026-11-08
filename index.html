@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Attic Greek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root{
+  --bg:#ECEFED; --surface:#F8FAF9; --ink:#1B2530; --muted:#55616B; --line:#C5CDD1;
+  --accent:#2C6A5E; --on-accent:#F8FAF9;
+  --good:#2C6A5E; --good-bg:#DCEAE5; --bad:#9E2F3C; --bad-bg:#F4E0E3;
+  --key:#FFFFFF; --key-line:#BCC5CA;
+  --f-greek:"Gentium Book Plus","Gentium Plus","GFS Didot","Noto Serif","Palatino Linotype","Times New Roman",serif;
+  --f-ui:"Commissioner",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#10161B; --surface:#182027; --ink:#E2E7E6; --muted:#97A3AB; --line:#2C3841;
+    --accent:#72B6A6; --on-accent:#0F1A17;
+    --good:#7FC2B1; --good-bg:#1C3530; --bad:#EE8F9B; --bad-bg:#3A2026;
+    --key:#1F2830; --key-line:#34424C;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10161B; --surface:#182027; --ink:#E2E7E6; --muted:#97A3AB; --line:#2C3841;
+  --accent:#72B6A6; --on-accent:#0F1A17;
+  --good:#7FC2B1; --good-bg:#1C3530; --bad:#EE8F9B; --bad-bg:#3A2026;
+  --key:#1F2830; --key-line:#34424C;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%;background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1.0625rem/1.55 var(--f-ui)}
+.wrap{max-width:40rem;margin:0 auto;padding:0 1.1rem}
+.gk{font-family:var(--f-greek)}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+header.site .wrap{display:flex;align-items:baseline;justify-content:space-between;gap:.8rem;padding-top:.9rem;padding-bottom:.55rem;border-bottom:1px solid var(--line)}
+.brand{font-family:var(--f-greek);font-size:1.2rem;color:var(--ink);text-decoration:none;white-space:nowrap}
+nav{display:flex;gap:1rem}
+nav a{color:var(--muted);text-decoration:none;font-weight:500;font-size:.95rem;padding:.3rem 0;border-bottom:2px solid transparent;white-space:nowrap}
+nav a[aria-current="page"]{color:var(--ink);border-color:var(--accent)}
+.badge{display:inline-block;min-width:1.45em;padding:0 .35em;margin-left:.3em;border-radius:1em;background:var(--accent);color:var(--on-accent);font-size:.75rem;line-height:1.45em;text-align:center;vertical-align:.1em}
+.badge[hidden]{display:none}
+
+main{padding:1.2rem 0 3.5rem}
+h1,h2,h3{line-height:1.2;font-weight:600}
+h1{font-size:1.6rem;margin:.2rem 0 1rem}
+h2{font-size:1.2rem;margin:2rem 0 .7rem}
+.hero h1{font-family:var(--f-greek);font-weight:400;font-size:clamp(2.7rem,13vw,4.4rem);line-height:1.05;margin:.6rem 0 .3rem;letter-spacing:.005em}
+.hero .sub{color:var(--muted);margin:0 0 1.6rem}
+.note{color:var(--muted);font-size:.92rem}
+.warn{background:var(--bad-bg);border-left:4px solid var(--bad);padding:.6rem .8rem;border-radius:6px}
+.crumb{margin:0 0 .8rem;font-size:.92rem}
+.crumb a{text-decoration:none}
+.kicker{color:var(--muted);margin:0;font-size:.95rem}
+
+.btn{appearance:none;display:inline-block;text-align:center;text-decoration:none;font:600 1rem/1.3 var(--f-ui);border-radius:8px;padding:.75rem 1.1rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;min-height:2.9rem}
+.btn.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn.block{display:block;width:100%}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+
+.today{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1rem 1rem .9rem}
+.today h2{margin:0 0 .7rem;font-size:1.05rem}
+.today .btn + .btn{margin-top:.6rem}
+.today .note{margin:.2rem 0 .7rem}
+.today details{margin-top:.9rem;font-size:.95rem}
+.today details p{margin:.5rem 0}
+summary{cursor:pointer;font-weight:500;color:var(--accent)}
+
+.unit-head{margin:2.2rem 0 .5rem}
+.unit-head .gk{display:block;font-size:2rem;line-height:1.1}
+.unit-head h2{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted);font-weight:500}
+.lessons{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.lessons a{display:grid;grid-template-columns:2.4rem 1fr auto;align-items:baseline;gap:.4rem;padding:.8rem .1rem;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}
+.lessons .num{color:var(--muted);font-variant-numeric:tabular-nums}
+.status{font-size:.85rem;color:var(--muted)}
+.status.done{color:var(--good)}
+.status.next{color:var(--accent);font-weight:600}
+.upcoming{color:var(--muted);padding-left:1.6rem;margin:.3rem 0}
+.upcoming li{padding:.15rem 0}
+.foot{margin-top:2.5rem;padding-top:1rem;border-top:1px solid var(--line)}
+
+.lesson-body{font-family:var(--f-greek);font-size:1.15rem;line-height:1.65}
+.lesson-body h3{font-family:var(--f-ui);font-size:1rem;margin:1.7rem 0 .3rem}
+.lesson-body p{margin:.7rem 0}
+.lesson-body details{margin:1rem 0}
+.lesson-body summary{font-family:var(--f-ui);font-size:1rem}
+.practice-cta{margin-top:2rem}
+
+.tbl-wrap{overflow-x:auto;margin:1rem 0}
+table{border-collapse:collapse;width:100%;font-family:var(--f-ui);font-size:.95rem;line-height:1.4}
+th,td{text-align:left;padding:.5rem .7rem .5rem 0;border-bottom:1px solid var(--line);vertical-align:baseline}
+th{font-weight:600;color:var(--muted);font-size:.82rem}
+td.g{font-family:var(--f-greek);font-size:1.7rem;line-height:1;white-space:nowrap}
+td.g small{font-size:.62em;color:var(--muted);margin-left:.25em}
+td.gw{font-family:var(--f-greek);font-size:1.3rem;white-space:nowrap}
+
+.progress{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin:.2rem 0 1.6rem}
+.progress span{display:block;height:100%;background:var(--accent);transition:width .25s ease}
+.ask{color:var(--muted);font-size:.95rem;text-align:center;margin:0}
+.show{text-align:center;margin:.3rem 0 1.4rem;font-family:var(--f-greek);line-height:1.15;overflow-wrap:anywhere}
+.show.letter{font-size:clamp(5rem,26vw,8rem)}
+.show.word{font-size:clamp(2.3rem,11vw,3.6rem);margin-top:.8rem}
+.show.latin{font-family:var(--f-ui);font-size:clamp(2rem,9vw,2.7rem);font-weight:500;margin-top:.8rem}
+.gloss{text-align:center;color:var(--muted);margin:-1rem 0 1.3rem}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.opts.one{grid-template-columns:1fr}
+.opt{appearance:none;font:500 1.05rem/1.35 var(--f-ui);padding:.8rem .7rem;min-height:3.2rem;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt.g{font-family:var(--f-greek);font-size:2rem;font-weight:400;line-height:1}
+.opt:disabled{cursor:default;color:var(--ink);opacity:1}
+.opt.right{background:var(--good-bg);border-color:var(--good)}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad)}
+.fb{margin:1.2rem 0 1rem;padding:.75rem 1rem;border-radius:8px;border-left:4px solid}
+.fb.good{background:var(--good-bg);border-color:var(--good)}
+.fb.bad{background:var(--bad-bg);border-color:var(--bad)}
+.fb p{margin:.25rem 0}
+.verdict{font-weight:600}
+.fb .gk{font-size:1.15em}
+input.latin{width:100%;font:500 1.35rem var(--f-ui);padding:.7rem .8rem;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);text-align:center}
+input.latin:focus{outline:none;border-color:var(--accent)}
+.actions{display:flex;gap:.6rem;margin-top:1rem}
+.actions .btn{flex:1}
+
+.typed{min-height:3.7rem;text-align:center;font-family:var(--f-greek);font-size:2.4rem;line-height:1.35;border-bottom:2px solid var(--line);margin:0 0 .3rem;padding:.2rem;overflow-wrap:anywhere}
+.typed:focus{outline:none;border-color:var(--accent)}
+.caret{display:inline-block;width:2px;height:.95em;background:var(--accent);vertical-align:-.1em;margin-left:1px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.kb-msg{min-height:1.35rem;margin:0;font-size:.85rem;color:var(--bad);text-align:center}
+.kb{display:grid;grid-template-columns:repeat(8,1fr);gap:.3rem;margin:.5rem 0 0}
+.key{font-family:var(--f-greek);font-size:1.4rem;min-height:2.9rem;padding:0;border:1px solid var(--key-line);border-bottom-width:2px;border-radius:6px;background:var(--key);color:var(--ink);cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.key:active{transform:translateY(1px)}
+.key.mark{background:var(--bg)}
+.key.fn{font-family:var(--f-ui);font-size:1.05rem;background:var(--bg)}
+.key.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.key.space{grid-column:span 8;font-size:.9rem}
+.pad .btn{margin-top:.8rem}
+.finish{text-align:center;padding-top:1rem}
+.finish h2{font-size:1.4rem;margin:0 0 .6rem}
+
+@media (prefers-reduced-motion:reduce){
+  .caret{animation:none}
+  .progress span{transition:none}
+  .key:active{transform:none}
+}
+@media (max-width:360px){
+  nav{gap:.7rem}
+  .key{font-size:1.2rem;min-height:2.7rem}
+}
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="#course">Attic Greek</a>
+    <nav aria-label="Main">
+      <a href="#course" data-nav="course">Course</a>
+      <a href="#review" data-nav="review">Review<span class="badge" id="due-badge" hidden></span></a>
+      <a href="#alphabet" data-nav="alphabet">Alphabet</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap" id="app"></main>
+
+<script>
+"use strict";
+
+/* =========================================================
+   Helpers
+   ========================================================= */
+const $ = (sel, el = document) => el.querySelector(sel);
+const $$ = (sel, el = document) => [...el.querySelectorAll(sel)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const GREEK_RUN = /[\u0370-\u03FF\u1F00-\u1FFF][\u0370-\u03FF\u1F00-\u1FFF\u0300-\u036F]*/g;
+// Wrap runs of Greek in author-written prose so they get the Greek font and lang tag.
+const P = html => html.replace(GREEK_RUN, m => `<span class="gk" lang="grc">${m}</span>`);
+const wrapGreek = P;
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const dotted = id => id.replace("-", ".");
+const DAY = 86400000;
+function dayStart(t = Date.now()) { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); }
+function addDays(n) { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + n); return d.getTime(); }
+function fmtDate(ts) {
+  if (!ts) return "";
+  const days = Math.round((dayStart(ts) - dayStart()) / DAY);
+  if (days <= 0) return "today";
+  if (days === 1) return "tomorrow";
+  return new Date(ts).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+}
+
+/* =========================================================
+   Data: letters, diphthongs, concepts, words
+   ========================================================= */
+// [lower, capital, name, transliteration, sound, lesson, note]
+const LETTERS = [
+  ["α", "Α", "alpha", "a", "a as in “father”", "0-1", ""],
+  ["β", "Β", "beta", "b", "b as in “bed”", "0-1", ""],
+  ["γ", "Γ", "gamma", "g", "g as in “go”, never as in “gem”", "0-2", "It looks like y but is g. Before γ, κ, ξ or χ it sounds n: ἄγγελος is angelos."],
+  ["δ", "Δ", "delta", "d", "d as in “dog”", "0-3", ""],
+  ["ε", "Ε", "epsilon", "e", "e as in “get”, always short", "0-1", ""],
+  ["ζ", "Ζ", "zeta", "z", "zd as in “wisdom”", "0-3", "One letter, two sounds."],
+  ["η", "Η", "eta", "ē", "e as in “they”, held long", "0-2", "It looks like n but is a vowel, long e."],
+  ["θ", "Θ", "theta", "th", "th as in “thin”", "0-3", ""],
+  ["ι", "Ι", "iota", "i", "i as in “machine” (long) or “bit” (short)", "0-1", ""],
+  ["κ", "Κ", "kappa", "k", "k as in “kit”", "0-1", ""],
+  ["λ", "Λ", "lambda", "l", "l as in “let”", "0-3", ""],
+  ["μ", "Μ", "mu", "m", "m as in “man”", "0-2", "It looks like u but is m."],
+  ["ν", "Ν", "nu", "n", "n as in “net”", "0-2", "It looks like v but is n."],
+  ["ξ", "Ξ", "xi", "x", "x as in “axe” (ks)", "0-3", "One letter, two sounds."],
+  ["ο", "Ο", "omicron", "o", "o as in “got”, always short", "0-1", ""],
+  ["π", "Π", "pi", "p", "p as in “pet”", "0-3", ""],
+  ["ρ", "Ρ", "rho", "r", "r, lightly rolled", "0-2", "It looks like p but is r."],
+  ["σ", "Σ", "sigma", "s", "s as in “sit”", "0-3", "At the end of a word it is written ς: σοφός."],
+  ["τ", "Τ", "tau", "t", "t as in “top”", "0-1", ""],
+  ["υ", "Υ", "upsilon", "y", "u as in French “tu” or German “über”", "0-2", "It looks like u. It is transliterated y: ψυχή is psychē."],
+  ["φ", "Φ", "phi", "ph", "ph as in “phone”", "0-3", ""],
+  ["χ", "Χ", "chi", "ch", "ch as in Scottish “loch”", "0-2", "It looks like x but is ch."],
+  ["ψ", "Ψ", "psi", "ps", "ps as in “lips”", "0-3", "One letter, two sounds."],
+  ["ω", "Ω", "omega", "ō", "o as in “note”, held long", "0-2", "It looks like w but is a vowel, long o."]
+];
+// Look-alikes used as deliberate distractors.
+const CONFUSE = { η: "νε", ν: "υη", υ: "νμ", μ: "υν", ρ: "πφ", π: "ρτ", ω: "οψ", ο: "ωσ", χ: "ξκ", ξ: "ζχ", ζ: "ξδ", φ: "ψθ", ψ: "φω", θ: "φδ", ε: "ησ", γ: "υν", ι: "λτ", λ: "δι", δ: "θλ", κ: "χ", β: "δ", τ: "π", α: "λ", σ: "ο" };
+
+// [pair, transliteration, sound]
+const DIPHS = [
+  ["αι", "ai", "ai as in “aisle”"],
+  ["ει", "ei", "ei as in “eight”"],
+  ["οι", "oi", "oi as in “oil”"],
+  ["υι", "ui", "like English “we”"],
+  ["αυ", "au", "ow as in “how”"],
+  ["ευ", "eu", "eh-oo, run together quickly"],
+  ["ηυ", "ēu", "like ευ, with a longer first vowel"],
+  ["ου", "ou", "ou as in “soup”"],
+  ["ᾳ", "āi", "same as α: the small iota is silent"],
+  ["ῃ", "ēi", "same as η: the small iota is silent"],
+  ["ῳ", "ōi", "same as ω: the small iota is silent"]
+];
+
+const CONCEPTS = [
+  { id: "C-smooth", prompt: "What does this mark add to the sound?", show: "ἀ", options: ["Nothing", "An h sound"], answer: "Nothing", explain: "Smooth breathing is silent: ἀ is a." },
+  { id: "C-rough", prompt: "What does this mark add to the sound?", show: "ἁ", options: ["An h sound", "Nothing"], answer: "An h sound", explain: "Rough breathing adds h: ἁ is ha." },
+  { id: "C-hodos", prompt: "How is this read?", show: "ὁδός", options: ["hodos", "odos"], answer: "hodos", explain: "Rough breathing: hodos, “road”. It is the root of μέθοδος, method." },
+  { id: "C-ergon", prompt: "How is this read?", show: "ἔργον", options: ["ergon", "hergon"], answer: "ergon", explain: "Smooth breathing: ergon, “work, deed”." },
+  { id: "C-haima", prompt: "How is this read?", show: "αἷμα", options: ["haima", "aima"], answer: "haima", explain: "The rough breathing sits on the second vowel of αι but applies to the whole syllable: haima, “blood”." },
+  { id: "C-eu", prompt: "How is this read?", show: "εὖ", options: ["eu", "heu"], answer: "eu", explain: "Smooth breathing on the diphthong: eu, “well”." },
+  { id: "C-rhetor", prompt: "How is this read?", show: "ῥήτωρ", options: ["rhētōr", "rētōr"], answer: "rhētōr", explain: "A word beginning with ρ always has a rough breathing, written rh: rhētōr, “public speaker”." },
+  { id: "C-hybris", prompt: "How is this read?", show: "ὕβρις", options: ["hybris", "ybris"], answer: "hybris", explain: "A word beginning with υ always has a rough breathing: hybris." },
+  { id: "C-s-logos", prompt: "Where does the stress fall?", show: "λόγος", options: ["LO-gos", "lo-GOS"], answer: "LO-gos", explain: "The accent is on the first syllable, so the stress is too." },
+  { id: "C-s-anthropos", prompt: "Where does the stress fall?", show: "ἄνθρωπος", options: ["AN-thrō-pos", "an-THRŌ-pos", "an-thrō-POS"], answer: "AN-thrō-pos", explain: "Accent on the first syllable: AN-thrō-pos, “human being”." },
+  { id: "C-s-agathon", prompt: "Where does the stress fall?", show: "ἀγαθόν", options: ["a-ga-THON", "a-GA-thon", "A-ga-thon"], answer: "a-ga-THON", explain: "Accent on the last syllable: a-ga-THON, “good”." },
+  { id: "C-s-sophia", prompt: "Where does the stress fall?", show: "σοφία", options: ["so-PHI-a", "SO-phi-a", "so-phi-A"], answer: "so-PHI-a", explain: "ι and α are not a diphthong, so they are separate syllables: so-PHI-a." },
+  { id: "C-s-polites", prompt: "Where does the stress fall?", show: "πολίτης", options: ["po-LI-tēs", "PO-li-tēs", "po-li-TĒS"], answer: "po-LI-tēs", explain: "Accent on the middle syllable: po-LI-tēs, “citizen”." },
+  { id: "C-grave", prompt: "Why are some accents here grave (`)?", show: "ἀρετὴ καὶ σοφία", options: ["A last-syllable acute turns grave when another word follows", "Grave marks a long vowel", "Grave marks the first word of a sentence"], answer: "A last-syllable acute turns grave when another word follows", explain: "ἀρετή becomes ἀρετὴ because καί follows; καί becomes καὶ because σοφία follows." },
+  { id: "C-question", prompt: "What does the final mark mean?", show: "τί ἐστιν;", options: ["It ends a question", "It marks a pause, like a semicolon", "It ends a list"], answer: "It ends a question", explain: "τί ἐστιν; is “What is it?”, Socrates’ standard question." },
+  { id: "C-raised", prompt: "What does the raised dot mean?", show: "·", options: ["A pause, like a colon or semicolon", "A question", "An abbreviation"], answer: "A pause, like a colon or semicolon", explain: "The raised dot works like an English colon or semicolon." }
+];
+
+// [Greek, transliteration, meaning, lesson]
+const WORDS = [
+  ["λόγος", "logos", "word, account, reason", "0-6"],
+  ["ψυχή", "psychē", "soul, life", "0-6"],
+  ["ἀρετή", "aretē", "excellence, virtue", "0-6"],
+  ["σοφία", "sophia", "wisdom", "0-6"],
+  ["φιλοσοφία", "philosophia", "love of wisdom, philosophy", "0-6"],
+  ["δόξα", "doxa", "opinion, belief; reputation", "0-6"],
+  ["τέχνη", "technē", "craft, skill, art", "0-6"],
+  ["πόλις", "polis", "city, city-state", "0-6"],
+  ["θεός", "theos", "god", "0-6"],
+  ["κόσμος", "kosmos", "order; world; adornment", "0-6"],
+  ["φύσις", "physis", "nature", "0-6"],
+  ["ἔρως", "erōs", "love, desire", "0-6"],
+  ["νοῦς", "nous", "mind, intellect", "0-6"],
+  ["ἀγαθόν", "agathon", "good; the good", "0-6"],
+  ["καλόν", "kalon", "beautiful, fine, noble", "0-6"],
+  ["δικαιοσύνη", "dikaiosynē", "justice", "0-7"],
+  ["ἐπιστήμη", "epistēmē", "knowledge, understanding", "0-7"],
+  ["εἶδος", "eidos", "form, kind; look", "0-7"],
+  ["ἰδέα", "idea", "form; look, appearance", "0-7"],
+  ["ἦθος", "ēthos", "character", "0-7"],
+  ["ἀνάμνησις", "anamnēsis", "recollection", "0-7"],
+  ["ἔλεγχος", "elenchos", "refutation, testing", "0-7"],
+  ["ἀπορία", "aporia", "impasse, perplexity", "0-7"],
+  ["εὐδαιμονία", "eudaimonia", "happiness, flourishing", "0-7"],
+  ["μίμησις", "mimēsis", "imitation, representation", "0-7"],
+  ["ὕβρις", "hybris", "outrage, insolence", "0-7"],
+  ["ἀλήθεια", "alētheia", "truth", "0-7"],
+  ["Σωκράτης", "Sōkratēs", "Socrates", "0-7"],
+  ["Πλάτων", "Platōn", "Plato", "0-7"],
+  ["Ἀθῆναι", "Athēnai", "Athens", "0-7"]
+];
+
+const ITEMS = {};
+for (const [g, cap, name, tr, sound, lesson, note] of LETTERS) ITEMS["L" + g] = { id: "L" + g, kind: "letter", g, cap, name, tr, sound, lesson, note };
+for (const [g, tr, sound] of DIPHS) ITEMS["D" + g] = { id: "D" + g, kind: "diph", g, tr, sound, lesson: "0-4" };
+for (const c of CONCEPTS) ITEMS[c.id] = Object.assign({}, c, { kind: "concept", lesson: "0-5" });
+for (const [g, tr, gloss, lesson] of WORDS) ITEMS["W" + g] = { id: "W" + g, kind: "word", g, tr, gloss, lesson };
+const itemsFor = lessonId => Object.values(ITEMS).filter(it => it.lesson === lessonId).map(it => it.id);
+
+/* =========================================================
+   Tables used in lessons and the alphabet page
+   ========================================================= */
+function letterTable(filter) {
+  const rows = LETTERS.filter(filter).map(([g, cap, name, tr, sound]) =>
+    `<tr><td class="g" lang="grc">${g === "σ" ? "σ ς" : g}<small>${cap}</small></td><td>${name}</td><td>${tr}</td><td>${esc(sound)}</td></tr>`).join("");
+  return `<div class="tbl-wrap"><table><thead><tr><th>Letter</th><th>Name</th><th>Written</th><th>Sounds like</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function diphTable(list, head = "Pair") {
+  const rows = list.map(([g, tr, sound]) => `<tr><td class="g" lang="grc">${g}</td><td>${tr}</td><td>${wrapGreek(esc(sound))}</td></tr>`).join("");
+  return `<div class="tbl-wrap"><table><thead><tr><th>${head}</th><th>Written</th><th>Sounds like</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function wordTable(lessonId) {
+  const rows = WORDS.filter(w => w[3] === lessonId).map(([g, tr, gloss]) => `<tr><td class="gw" lang="grc">${g}</td><td>${tr}</td><td>${esc(gloss)}</td></tr>`).join("");
+  return `<details><summary>Word list</summary><div class="tbl-wrap"><table><thead><tr><th>Greek</th><th>Written</th><th>Meaning</th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
+}
+
+/* =========================================================
+   Lessons: Unit 0
+   ========================================================= */
+const LESSONS = [
+  { id: "0-1", title: "Seven familiar letters", body: () =>
+    P(`<p>Greek has 24 letters. The Latin alphabet descends from a form of the Greek one, so several letters already look familiar. These seven look and sound roughly as you would guess.</p>`) +
+    letterTable(l => l[5] === "0-1") +
+    P(`<p>Learn the lowercase forms first. Printed Greek texts are almost entirely lowercase; capitals mark proper names and the beginnings of paragraphs.</p>
+    <p>Two of these vowels are always short: ε (epsilon) and ο (omicron). The other two, α and ι, can be long or short. You will not need to tell which for some time.</p>
+    <h3>About pronunciation</h3>
+    <p>This course uses the Erasmian pronunciation, the convention in most English-speaking classrooms and the one most teachers and commentaries assume. It does not reconstruct exactly how Plato sounded. Its job is to give every letter a distinct sound so you can hold words in your head.</p>
+    <p>Say each sound aloud as you practice. At this stage, reading aloud is the most useful single habit.</p>`) },
+
+  { id: "0-2", title: "Eight false friends", body: () =>
+    P(`<p>These eight letters look like English letters but stand for something else. Most early misreadings come from this group, so it gets its own lesson.</p>`) +
+    letterTable(l => l[5] === "0-2") +
+    P(`<p>The trap in each case: η is not n, ν is not v, ρ is not p, υ is not u, χ is not x, ω is not w, γ is not y, and μ is not u.</p>
+    <p>η and ω are the long partners of ε and ο. The names say so: omicron is “little o”, omega “big o”.</p>
+    <p>Two transliteration habits appear here. η and ω are written ē and ō, with a bar marking length, and υ is written y. So ψυχή becomes psychē, which is why English has “psychology”.</p>
+    <p>Before γ, κ, ξ or χ, the letter γ sounds like the n in “anger”: ἄγγελος (angelos, messenger) gives us “angel”.</p>`) },
+
+  { id: "0-3", title: "Nine new shapes", body: () =>
+    P(`<p>The last nine letters have no close English look-alike. That makes them easier than the false friends: there is nothing to unlearn.</p>`) +
+    letterTable(l => l[5] === "0-3") +
+    P(`<p>Sigma has two lowercase forms: σ inside a word and ς at the end. You can see both in σοφός (sophos, wise).</p>
+    <p>Three letters stand for two sounds at once: ζ (zd), ξ (ks) and ψ (ps).</p>
+    <p>θ, φ and χ are written th, ph and ch. In this pronunciation they sound as in “thin”, “phone” and Scottish “loch”. In classical Athens they were probably t, p and k with a puff of breath, as in English “top”, “pot” and “kit”. Some books teach that version.</p>
+    <p>That completes the alphabet. The Alphabet page lists all 24 letters in order.</p>`) },
+
+  { id: "0-4", title: "Diphthongs and the silent iota", body: () =>
+    P(`<p>A diphthong is two vowels pronounced together as one syllable. Greek has eight common ones, and the second vowel is always ι or υ.</p>`) +
+    diphTable(DIPHS.slice(0, 8)) +
+    P(`<p>When two vowels do not form one of these pairs, pronounce each separately. In ἰδέα (idea) the ε and α belong to different syllables: i-DE-a.</p>
+    <h3>Iota subscript</h3>
+    <p>Sometimes a small iota is written under α, η or ω. In this pronunciation it is silent, so ᾳ sounds just like α. Do not ignore it when reading, though: from Unit 1 on, it will be the only thing that tells some word endings apart.</p>`) +
+    diphTable(DIPHS.slice(8), "Letter") },
+
+  { id: "0-5", title: "Breathings, accents, punctuation", body: () =>
+    P(`<h3>Breathings</h3>
+    <p>Every word that begins with a vowel or diphthong has a breathing mark over its first vowel. The smooth breathing (ἀ) is silent. The rough breathing (ἁ) adds an h. So ὁδός (road) is hodos, but ἔργον (work) is ergon.</p>
+    <p>On a diphthong, the mark sits on the second vowel but belongs to the whole syllable: εὐ is eu, αἱ is hai. A word beginning with ρ or υ always has a rough breathing: ῥήτωρ (rhētōr, speaker), ὕβρις (hybris). With a capital, the mark stands in front of the letter: Ἀθῆναι, Ὅμηρος.</p>
+    <h3>Accents</h3>
+    <p>Greek has three accent marks: acute (ά), grave (ὰ) and circumflex (ᾶ). In Plato’s time they marked pitch. Modern readers treat them as stress: put the stress on the syllable with the mark. λόγος is LO-gos; ἀγαθόν is a-ga-THON.</p>
+    <p>The grave appears only on a word’s last syllable, when another word follows directly: ἀρετή on its own, but ἀρετὴ καὶ σοφία (excellence and wisdom).</p>
+    <p>You do not need to place accents yourself yet. Practice in this course forgives accent mistakes until the rules are taught, but it always shows the correct form.</p>
+    <h3>Punctuation</h3>
+    <p>Period and comma work as in English. Two marks differ: ; is a question mark, and a raised dot · works like a colon or semicolon. τί ἐστιν; is “What is it?”, the question Socrates keeps asking.</p>`) },
+
+  { id: "0-6", title: "Reading Plato’s vocabulary, part 1", body: () =>
+    P(`<p>You know these words from reading Plato in translation. Now read them in Greek. Try sounding each one out before opening the word list.</p>
+    <p>Transliteration follows fixed rules: η is ē, ω is ō, υ is y (but u inside a diphthong), a rough breathing is h, and θ, φ, χ are th, ph, ch. When you type an answer, the bars over ē and ō are optional, and c counts as k.</p>
+    <h3>Writing Greek</h3>
+    <p>The second practice round asks you to write each word with the Greek keyboard. Tap a letter, then any marks it needs: breathing first, then accent. ⇧ makes the next letter a capital. Breathings count; accents are forgiven for now.</p>
+    <p>On a computer you can type instead. Letters use the nearest Latin key (q is θ, c is ξ, y is ψ, w is ω, h is η), and the keys ) ( / \\ = | add smooth breathing, rough breathing, acute, grave, circumflex and iota subscript.</p>`) +
+    wordTable("0-6") },
+
+  { id: "0-7", title: "Reading Plato’s vocabulary, part 2", body: () =>
+    P(`<p>Fifteen more. Two things to watch for.</p>
+    <p>In ἔλεγχος the γ comes before χ, so it sounds n: elenchos.</p>
+    <p>Proper names take capitals, and a capital vowel carries its breathing in front: Ἀθῆναι. On the keyboard, tap ⇧, then the letter, then its marks.</p>`) +
+    wordTable("0-7") }
+];
+
+const UPCOMING = [
+  "Present tense verbs, the first declension, the article",
+  "Second declension, adjectives, prepositions",
+  "Imperfect and future; εἰμί",
+  "Third declension",
+  "Middle and passive voice",
+  "The aorist and principal parts",
+  "Participles",
+  "Pronouns and relative clauses",
+  "Subjunctive, optative, conditions",
+  "μι-verbs and the perfect",
+  "Infinitives and indirect discourse",
+  "Reading Plato: the Euthyphro"
+];
+
+/* =========================================================
+   Storage (localStorage, isolated here so it can be swapped)
+   ========================================================= */
+const Store = (() => {
+  const KEY = "attic-greek:v1";
+  let state = null, persistent = true;
+  const blank = () => ({ v: 1, lessons: {}, cards: {} });
+  function load() {
+    if (state) return state;
+    try {
+      const raw = localStorage.getItem(KEY);
+      state = raw ? JSON.parse(raw) : blank();
+      if (!state || typeof state !== "object") state = blank();
+      state.lessons = state.lessons || {};
+      state.cards = state.cards || {};
+    } catch (e) { persistent = false; state = blank(); }
+    return state;
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(load())); } catch (e) { persistent = false; } }
+  function reset() { state = blank(); save(); }
+  return { get state() { return load(); }, save, reset, get persistent() { load(); return persistent; } };
+})();
+
+/* =========================================================
+   Spaced repetition (SM-2 style, pass/fail)
+   ========================================================= */
+const SRS = {
+  introduce(id) {
+    const cards = Store.state.cards;
+    if (!cards[id]) cards[id] = { due: addDays(1), interval: 1, ease: 2.5, reps: 1, lapses: 0 };
+  },
+  grade(id, ok) {
+    const c = Store.state.cards[id];
+    if (!c) return;
+    if (ok) {
+      if (c.reps === 0) c.interval = 1;
+      else if (c.reps === 1) c.interval = 3;
+      else c.interval = Math.max(c.interval + 1, Math.round(c.interval * c.ease));
+      c.reps++;
+      c.due = addDays(c.interval);
+    } else {
+      c.lapses++;
+      c.reps = 0;
+      c.interval = 0;
+      c.ease = Math.max(1.3, Math.round((c.ease - 0.2) * 100) / 100);
+      c.due = Date.now();
+    }
+  },
+  dueIds() {
+    const now = Date.now(), cards = Store.state.cards;
+    return Object.keys(cards).filter(id => ITEMS[id] && cards[id].due <= now);
+  },
+  nextDue() {
+    const now = Date.now();
+    let m = Infinity;
+    for (const c of Object.values(Store.state.cards)) if (c.due > now && c.due < m) m = c.due;
+    return m === Infinity ? null : m;
+  }
+};
+
+/* =========================================================
+   Greek text: composing, comparing, transliteration checks
+   ========================================================= */
+const MARKS = { smooth: "\u0313", rough: "\u0314", acute: "\u0301", grave: "\u0300", circ: "\u0342", iota: "\u0345" };
+const MARK_KIND = { smooth: "br", rough: "br", acute: "acc", grave: "acc", circ: "acc", iota: "iota" };
+const COMB_TO_MARK = { "\u0313": "smooth", "\u0314": "rough", "\u0301": "acute", "\u0300": "grave", "\u0342": "circ", "\u0345": "iota" };
+const BASES = "αβγδεζηθικλμνξοπρστυφχψω";
+const VOWELS = "αεηιουω";
+const LATIN_KEYS = { a: "α", b: "β", g: "γ", d: "δ", e: "ε", z: "ζ", h: "η", q: "θ", i: "ι", k: "κ", l: "λ", m: "μ", n: "ν", c: "ξ", o: "ο", p: "π", r: "ρ", s: "σ", t: "τ", u: "υ", f: "φ", x: "χ", y: "ψ", w: "ω" };
+const MARK_KEYS = { ")": "smooth", "(": "rough", "/": "acute", "\\": "grave", "=": "circ", "|": "iota" };
+
+function composeChar(c) {
+  let s = c.cap ? c.base.toUpperCase() : c.base;
+  if (c.br) s += MARKS[c.br];
+  if (c.acc) s += MARKS[c.acc];
+  if (c.iota) s += MARKS.iota;
+  return s.normalize("NFC");
+}
+function composeText(chars) {
+  return chars.map(c => c.space ? " " : composeChar(c)).join("").replace(/σ(?=\s|$)/g, "ς");
+}
+const stripAccents = s => s.normalize("NFD").replace(/[\u0300\u0301\u0342]/g, "").normalize("NFC");
+const stripAll = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").normalize("NFC");
+
+function compareGreek(user, expected) {
+  const u = user.normalize("NFC"), e = expected.normalize("NFC");
+  const low = s => s.toLowerCase();
+  if (u === e) return { ok: true };
+  if (low(u) === low(e)) return { ok: true, note: "Proper names begin with a capital." };
+  if (low(stripAccents(u)) === low(stripAccents(e))) return { ok: true, note: `Letters and breathing are right. With its accent the word is ${e}; accents are not graded yet.` };
+  if (low(stripAll(u)) === low(stripAll(e))) return { ok: false, note: "The letters are right, but a breathing mark is wrong or missing." };
+  return { ok: false };
+}
+function normLatin(s) {
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/kh/g, "ch").replace(/ch/g, "\u0001").replace(/c/g, "k").replace(/\u0001/g, "ch")
+    .replace(/y/g, "u").replace(/[^a-z]/g, "");
+}
+
+/* =========================================================
+   Greek keyboard component
+   ========================================================= */
+function Keyboard(el, { display, msg, allowSpace = false }) {
+  let chars = [], shift = false, locked = false;
+  const markKeys = [
+    ["smooth", "\u25CC\u0313", "smooth breathing"], ["rough", "\u25CC\u0314", "rough breathing"],
+    ["acute", "\u25CC\u0301", "acute accent"], ["grave", "\u25CC\u0300", "grave accent"],
+    ["circ", "\u25CC\u0342", "circumflex"], ["iota", "\u25CC\u0345", "iota subscript"]
+  ];
+  el.innerHTML = `<div class="kb">
+    ${BASES.split("").map(b => `<button type="button" class="key" data-b="${b}" aria-label="${ITEMS["L" + b].name}" lang="grc">${b}</button>`).join("")}
+    <button type="button" class="key fn" data-shift aria-label="capital letter" aria-pressed="false">⇧</button>
+    ${markKeys.map(([k, lab, aria]) => `<button type="button" class="key mark" data-m="${k}" aria-label="${aria}">${lab}</button>`).join("")}
+    <button type="button" class="key fn" data-back aria-label="delete">⌫</button>
+    ${allowSpace ? `<button type="button" class="key fn space" data-space>space</button>` : ""}
+  </div>`;
+  // Keep focus where it is when keys are tapped.
+  el.addEventListener("mousedown", e => { if (e.target.closest(".key")) e.preventDefault(); });
+  el.addEventListener("click", e => {
+    const k = e.target.closest("button");
+    if (!k || locked) return;
+    if (k.dataset.b) addBase(k.dataset.b);
+    else if (k.dataset.m) addMark(k.dataset.m);
+    else if ("shift" in k.dataset) { shift = !shift; refresh(); }
+    else if ("back" in k.dataset) back();
+    else if ("space" in k.dataset) { chars.push({ space: true }); render(); }
+  });
+
+  function say(t) { if (msg) msg.innerHTML = wrapGreek(esc(t)); }
+  function addBase(b) { chars.push({ base: b, cap: shift, br: null, acc: null, iota: false }); shift = false; render(); }
+  function addMark(m) {
+    const c = chars[chars.length - 1];
+    if (!c || c.space) return say("Type a letter first, then its marks.");
+    const kind = MARK_KIND[m];
+    if (kind === "br") {
+      if (c.base === "ρ" && m !== "rough") return say("ρ takes only the rough breathing.");
+      if (!VOWELS.includes(c.base) && c.base !== "ρ") return say("Breathings go on vowels (and on ρ).");
+      c.br = c.br === m ? null : m;
+    } else if (kind === "acc") {
+      if (!VOWELS.includes(c.base)) return say("Accents go on vowels.");
+      c.acc = c.acc === m ? null : m;
+    } else {
+      if (!"αηω".includes(c.base)) return say("Iota subscript goes only under α, η or ω.");
+      c.iota = !c.iota;
+    }
+    render();
+  }
+  function back() { chars.pop(); render(); }
+  function refresh() {
+    const s = $("[data-shift]", el);
+    if (!s) return;
+    s.classList.toggle("on", shift);
+    s.setAttribute("aria-pressed", String(shift));
+    $$("[data-b]", el).forEach(k => { k.textContent = shift ? k.dataset.b.toUpperCase() : k.dataset.b; });
+  }
+  function render() {
+    if (msg) msg.textContent = "";
+    display.innerHTML = esc(composeText(chars)) + (locked ? "" : '<span class="caret"></span>');
+    refresh();
+  }
+  function handleKey(e) {
+    if (locked || e.ctrlKey || e.metaKey || e.altKey) return;
+    const t = e.target;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+    const key = e.key;
+    if (key === "Backspace") { e.preventDefault(); back(); return; }
+    if (key === " " && allowSpace) { e.preventDefault(); chars.push({ space: true }); render(); return; }
+    if (MARK_KEYS[key]) { e.preventDefault(); addMark(MARK_KEYS[key]); return; }
+    if (key === "*") { e.preventDefault(); shift = true; refresh(); return; }
+    if (key.length !== 1) return;
+    const lower = key.toLowerCase();
+    if (LATIN_KEYS[lower]) { e.preventDefault(); shift = shift || key !== lower; addBase(LATIN_KEYS[lower]); return; }
+    // A Greek keyboard layout sends Greek characters directly.
+    const d = key.normalize("NFD");
+    const base = d[0].toLowerCase();
+    if (BASES.includes(base) || base === "ς") {
+      e.preventDefault();
+      shift = shift || d[0] !== base;
+      addBase(base === "ς" ? "σ" : base);
+      for (const ch of d.slice(1)) { const m = COMB_TO_MARK[ch]; if (m) addMark(m); }
+    }
+  }
+  render();
+  return {
+    get value() { return composeText(chars).trim(); },
+    handleKey,
+    clear() { chars = []; shift = false; render(); },
+    lock() { locked = true; render(); el.innerHTML = ""; }
+  };
+}
+
+/* =========================================================
+   Exercises
+   ========================================================= */
+const lettersUpTo = lessonId => Object.values(ITEMS).filter(it => it.kind === "letter" && it.lesson <= lessonId);
+const diphPool = () => Object.values(ITEMS).filter(it => it.kind === "diph");
+
+function optionSet(correct, pool, key, n = 4, confuse = []) {
+  const out = [correct];
+  const has = v => out.some(o => o[key] === v);
+  for (const c of shuffle(confuse.filter(c => pool.includes(c)))) { if (out.length >= 3) break; if (!has(c[key])) out.push(c); }
+  for (const p of shuffle(pool.slice())) { if (out.length >= n) break; if (!has(p[key])) out.push(p); }
+  return shuffle(out).map(o => o[key]);
+}
+const mc = (ask, show, showClass, options, answer, explain, optStyle = "latin") => ({ kind: "mc", ask, show, showClass, options, answer, explain, optStyle });
+
+function makeExercise(item, mode, streak) {
+  const fresh = mode === "lesson";
+  if (item.kind === "letter") {
+    const type = fresh ? (streak === 0 ? "glyph2name" : pick(["glyph2tr", "name2glyph"])) : pick(["glyph2name", "glyph2tr", "name2glyph"]);
+    const pool = lettersUpTo(item.lesson);
+    const confuse = (CONFUSE[item.g] || "").split("").map(g => ITEMS["L" + g]).filter(Boolean);
+    const explain = `${item.g} (capital ${item.cap}) is ${item.name}, written ${item.tr}: ${item.sound}.` + (item.note ? " " + item.note : "");
+    if (type === "glyph2name") return mc("Name this letter", item.g, "letter", optionSet(item, pool, "name", 4, confuse), item.name, explain);
+    if (type === "glyph2tr") return mc("How is it transliterated?", item.g, "letter", optionSet(item, pool, "tr", 4, confuse), item.tr, explain);
+    return mc("Which letter is this?", item.name, "latin", optionSet(item, pool, "g", 4, confuse), item.g, explain, "greek");
+  }
+  if (item.kind === "diph") {
+    const type = fresh ? (streak === 0 ? "sound" : "tr") : pick(["sound", "tr"]);
+    const explain = `${item.g} sounds ${item.sound}. It is written ${item.tr}.`;
+    if (type === "sound") return mc("How does it sound?", item.g, "word", optionSet(item, diphPool(), "sound"), item.sound, explain);
+    return mc("How is it transliterated?", item.g, "word", optionSet(item, diphPool(), "tr"), item.tr, explain);
+  }
+  if (item.kind === "concept") {
+    return mc(item.prompt, item.show, item.show.length > 3 ? "word" : "letter", shuffle(item.options.slice()), item.answer, item.explain);
+  }
+  // word
+  const type = fresh ? (streak === 0 ? "read" : "write") : pick(["read", "write"]);
+  const explain = `${item.g} is ${item.tr}: ${item.gloss}.`;
+  if (type === "read") return { kind: "read", ask: "Type it in Latin letters", show: item.g, showClass: "word", answer: item.tr, explain };
+  return { kind: "write", ask: "Write it in Greek", show: item.tr, gloss: item.gloss, showClass: "latin", answer: item.g, explain };
+}
+
+/* =========================================================
+   Drill runner (lesson practice and reviews)
+   ========================================================= */
+let keyHandler = null;
+document.addEventListener("keydown", e => { if (keyHandler) keyHandler(e); });
+
+function runDrill(root, ids, mode, onFinish) {
+  const st = { queue: shuffle(ids.slice()), streak: {}, done: new Set(), lapsed: new Set(), total: ids.length, wrong: 0 };
+  const need = id => (mode === "lesson" && ITEMS[id].kind !== "concept") ? 2 : 1;
+  let cur = null;
+
+  function reinsert(id, min, max) {
+    const pos = Math.min(st.queue.length, min + Math.floor(Math.random() * (max - min + 1)));
+    st.queue.splice(pos, 0, id);
+  }
+  function record(id, ok) {
+    if (!ok) st.wrong++;
+    if (mode === "review") {
+      if (ok) { SRS.grade(id, true); st.done.add(id); }
+      else { if (!st.lapsed.has(id)) { SRS.grade(id, false); st.lapsed.add(id); } reinsert(id, 3, 5); }
+      Store.save();
+    } else if (ok) {
+      st.streak[id] = (st.streak[id] || 0) + 1;
+      if (st.streak[id] >= need(id)) st.done.add(id); else reinsert(id, 2, 5);
+    } else {
+      st.streak[id] = 0;
+      reinsert(id, 2, 4);
+    }
+  }
+  function pct() {
+    if (mode === "review") return Math.round(100 * st.done.size / st.total);
+    let got = 0, all = 0;
+    for (const id of ids) { const n = need(id); all += n; got += Math.min(st.streak[id] || 0, n); }
+    return Math.round(100 * got / all);
+  }
+  const contKey = e => { if (e.key === "Enter" && e.target.tagName !== "BUTTON") { e.preventDefault(); next(); } };
+
+  function next() {
+    keyHandler = null;
+    if (!st.queue.length) { onFinish(st); return; }
+    const id = st.queue.shift();
+    cur = { id, ex: makeExercise(ITEMS[id], mode, st.streak[id] || 0), answered: false };
+    paint();
+  }
+  function paint() {
+    const ex = cur.ex, p = pct();
+    root.innerHTML = `
+      <div class="progress" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${p}"><span style="width:${p}%"></span></div>
+      <p class="ask">${esc(ex.ask)}</p>
+      <div class="show ${ex.showClass}"${ex.showClass === "latin" ? "" : ' lang="grc"'}>${esc(ex.show)}</div>
+      ${ex.gloss ? `<p class="gloss">${esc(ex.gloss)}</p>` : ""}
+      <div id="work"></div>
+      <div id="fb" aria-live="polite"></div>`;
+    const work = $("#work", root);
+    if (ex.kind === "mc") paintMC(work);
+    else if (ex.kind === "read") paintRead(work);
+    else paintWrite(work);
+  }
+  function finish(ok, lead = "", note = "") {
+    cur.answered = true;
+    record(cur.id, ok);
+    const p = pct(), bar = $(".progress", root);
+    bar.setAttribute("aria-valuenow", p);
+    $("span", bar).style.width = p + "%";
+    $("#fb", root).innerHTML = `<div class="fb ${ok ? "good" : "bad"}">
+        <p class="verdict">${ok ? "Correct." : "Not quite."}${lead ? " " + wrapGreek(esc(lead)) : ""}</p>
+        ${note ? `<p>${wrapGreek(esc(note))}</p>` : ""}
+        <p>${wrapGreek(esc(cur.ex.explain))}</p>
+      </div>
+      <button class="btn primary block" id="cont" type="button">Continue</button>`;
+    const c = $("#cont", root);
+    c.addEventListener("click", next);
+    c.focus();
+    keyHandler = contKey;
+  }
+
+  function paintMC(work) {
+    const ex = cur.ex, greek = ex.optStyle === "greek";
+    const one = ex.options.some(o => o.length > 14);
+    work.innerHTML = `<div class="opts${one ? " one" : ""}">${ex.options.map((o, i) =>
+      `<button type="button" class="opt${greek ? " g" : ""}" data-i="${i}"${greek ? ' lang="grc"' : ""}>${esc(o)}</button>`).join("")}</div>`;
+    const btns = $$(".opt", work);
+    const choose = i => {
+      if (cur.answered) return;
+      const ok = ex.options[i] === ex.answer;
+      btns.forEach((b, j) => {
+        b.disabled = true;
+        if (ex.options[j] === ex.answer) b.classList.add("right");
+        else if (j === i) b.classList.add("wrong");
+      });
+      finish(ok, ok ? "" : `The answer is ${ex.answer}.`);
+    };
+    btns.forEach((b, i) => b.addEventListener("click", () => choose(i)));
+    keyHandler = e => {
+      if (cur.answered) return contKey(e);
+      const n = parseInt(e.key, 10);
+      if (n >= 1 && n <= ex.options.length) { e.preventDefault(); choose(n - 1); }
+    };
+  }
+
+  function paintRead(work) {
+    work.innerHTML = `<input class="latin" id="ans" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Transliteration">
+      <div class="actions"><button class="btn primary" id="check" type="button">Check</button></div>`;
+    const inp = $("#ans", work);
+    const check = () => {
+      if (cur.answered) return;
+      const v = inp.value.trim();
+      if (!v) { inp.focus(); return; }
+      const ok = normLatin(v) === normLatin(cur.ex.answer);
+      inp.readOnly = true;
+      $(".actions", work).remove();
+      const lead = ok ? (v.toLowerCase() !== cur.ex.answer.toLowerCase() ? `Standard form: ${cur.ex.answer}.` : "") : `The answer is ${cur.ex.answer}.`;
+      finish(ok, lead);
+    };
+    $("#check", work).addEventListener("click", check);
+    keyHandler = e => {
+      if (cur.answered) return contKey(e);
+      if (e.key === "Enter") { e.preventDefault(); check(); }
+    };
+    inp.focus();
+  }
+
+  function paintWrite(work) {
+    work.innerHTML = `<div class="typed" id="typed" tabindex="-1" lang="grc" aria-live="polite" aria-label="Your answer"></div>
+      <p class="kb-msg" id="kbmsg"></p>
+      <div id="kb"></div>
+      <div class="actions"><button class="btn primary" id="check" type="button">Check</button></div>`;
+    const kb = Keyboard($("#kb", work), { display: $("#typed", work), msg: $("#kbmsg", work) });
+    const check = () => {
+      if (cur.answered) return;
+      const v = kb.value;
+      if (!v) { $("#kbmsg", work).textContent = "Write the word first."; return; }
+      const r = compareGreek(v, cur.ex.answer);
+      kb.lock();
+      $(".actions", work).remove();
+      finish(r.ok, r.ok ? "" : `The answer is ${cur.ex.answer}.`, [r.note, r.ok ? "" : `You wrote ${v}.`].filter(Boolean).join(" "));
+    };
+    $("#check", work).addEventListener("click", check);
+    keyHandler = e => {
+      if (cur.answered) return contKey(e);
+      if (e.key === "Enter" && e.target.tagName !== "BUTTON") { e.preventDefault(); check(); return; }
+      kb.handleKey(e);
+    };
+  }
+
+  next();
+}
+
+/* =========================================================
+   Views
+   ========================================================= */
+const app = $("#app");
+
+function updateBadge() {
+  const n = SRS.dueIds().length, b = $("#due-badge");
+  b.textContent = n;
+  b.hidden = n === 0;
+}
+
+function viewCourse() {
+  const s = Store.state;
+  const due = SRS.dueIds().length;
+  const nextL = LESSONS.find(l => !s.lessons[l.id]);
+  const hasCards = Object.keys(s.cards).length > 0;
+  app.innerHTML = `
+    <section class="hero">
+      <h1 lang="grc">Ἀττικὴ γλῶττα</h1>
+      <p class="sub">Attic Greek, from the alphabet to Plato.</p>
+    </section>
+    ${Store.persistent ? "" : `<p class="warn">This browser is blocking storage, so progress will be lost when you close the page.</p>`}
+    <section class="today" aria-labelledby="today-h">
+      <h2 id="today-h">Today</h2>
+      ${due ? `<a class="btn primary block" href="#review">Review ${due} item${due === 1 ? "" : "s"}</a>`
+            : `<p class="note">${hasCards ? `No reviews due. Next review: ${fmtDate(SRS.nextDue())}.` : "Reviews appear here after your first lesson."}</p>`}
+      ${nextL ? `<a class="btn${due ? "" : " primary"} block" href="#lesson-${nextL.id}">${due ? "Then lesson" : "Lesson"} ${dotted(nextL.id)}: ${esc(nextL.title)}</a>`
+              : `<p class="note">Unit 0 is complete. Unit 1 is the next to be built.</p>`}
+      <details>
+        <summary>How to use this course</summary>
+        <p>Spend 15 to 20 minutes a day. Do your reviews first, then at most one new lesson.</p>
+        <p>Read each lesson through once, saying the Greek aloud, then practice. In practice, each item keeps coming back until you get it right twice. A miss just means it returns sooner.</p>
+        <p>Reviews are spaced out: an item you know comes back after a day, then three days, then a week, then longer. Missing a review is normal and resets that item to tomorrow.</p>
+      </details>
+    </section>
+
+    <div class="unit-head"><span class="gk" lang="grc">τὰ γράμματα</span><h2>Unit 0: The letters</h2></div>
+    <ol class="lessons">
+      ${LESSONS.map(l => {
+        const done = !!s.lessons[l.id], isNext = nextL && nextL.id === l.id;
+        return `<li><a href="#lesson-${l.id}"><span class="num">${dotted(l.id)}</span><span>${esc(l.title)}</span>
+          <span class="status${done ? " done" : isNext ? " next" : ""}">${done ? "Done" : isNext ? "Next" : ""}</span></a></li>`;
+      }).join("")}
+    </ol>
+
+    <h2>Later units</h2>
+    <ol class="upcoming">${UPCOMING.map(t => `<li>${wrapGreek(esc(t))}</li>`).join("")}</ol>
+
+    <div class="foot">
+      <p class="note">Progress is saved in this browser on this device.</p>
+      <button class="btn danger" id="reset" type="button">Reset progress</button>
+    </div>`;
+  const r = $("#reset");
+  let armed = false, timer = null;
+  r.addEventListener("click", () => {
+    if (!armed) {
+      armed = true; r.textContent = "Tap again to erase all progress";
+      timer = setTimeout(() => { armed = false; r.textContent = "Reset progress"; }, 4000);
+      return;
+    }
+    clearTimeout(timer);
+    Store.reset(); updateBadge(); viewCourse();
+  });
+}
+
+function viewLesson(id) {
+  const L = LESSONS.find(l => l.id === id);
+  if (!L) { location.hash = "#course"; return; }
+  const done = !!Store.state.lessons[id];
+  const ids = itemsFor(id);
+  const allOnce = ids.every(i => ITEMS[i].kind === "concept");
+  app.innerHTML = `
+    <p class="crumb"><a href="#course">Course</a></p>
+    <p class="kicker">Lesson ${dotted(id)}</p>
+    <h1>${esc(L.title)}</h1>
+    <div class="lesson-body">${L.body()}</div>
+    <div class="practice-cta">
+      <p class="note">${ids.length} items. ${allOnce ? "Each comes back until you get it right." : "Each comes back until you get it right twice."}</p>
+      <button class="btn primary block" id="start" type="button">${done ? "Practice again" : "Start practice"}</button>
+    </div>`;
+  $("#start").addEventListener("click", () => startPractice(L, ids, done));
+}
+
+function startPractice(L, ids, again) {
+  app.innerHTML = `<p class="crumb"><a href="#lesson-${L.id}">Lesson ${dotted(L.id)}</a></p><div id="drill"></div>`;
+  window.scrollTo(0, 0);
+  runDrill($("#drill"), ids, "lesson", st => {
+    const s = Store.state;
+    if (!s.lessons[L.id]) s.lessons[L.id] = { done: true, at: Date.now() };
+    ids.forEach(id => SRS.introduce(id));
+    Store.save();
+    updateBadge();
+    const nextL = LESSONS.find(l => !s.lessons[l.id]);
+    $("#drill").innerHTML = `<div class="finish">
+      <h2>Lesson ${dotted(L.id)} complete</h2>
+      <p>${again ? "Practice round finished." : `These ${ids.length} items are now in your reviews. The first review is tomorrow.`}</p>
+      <p class="note">${st.wrong ? `${st.wrong} miss${st.wrong === 1 ? "" : "es"} along the way, each repeated until it stuck.` : "No misses."}</p>
+      <div class="actions">
+        ${nextL ? `<a class="btn primary" href="#lesson-${nextL.id}">Next lesson</a>` : ""}
+        <a class="btn" href="#course">Course</a>
+      </div>
+      ${nextL && !again ? `<p class="note">One lesson a day is the steady pace. A second is fine if you feel fresh.</p>` : ""}
+    </div>`;
+    window.scrollTo(0, 0);
+  });
+}
+
+function viewReview() {
+  const ids = shuffle(SRS.dueIds()).slice(0, 50);
+  if (!ids.length) {
+    const hasCards = Object.keys(Store.state.cards).length > 0;
+    app.innerHTML = `<h1>Review</h1>
+      <p>${hasCards ? `Nothing is due. Next review: ${fmtDate(SRS.nextDue())}.` : "Nothing to review yet. Items join your reviews when you finish a lesson."}</p>
+      <a class="btn" href="#course">Course</a>`;
+    return;
+  }
+  app.innerHTML = `<p class="crumb"><a href="#course">Course</a></p><div id="drill"></div>`;
+  runDrill($("#drill"), ids, "review", st => {
+    updateBadge();
+    const left = SRS.dueIds().length;
+    const firstTime = ids.length - st.lapsed.size;
+    $("#drill").innerHTML = `<div class="finish">
+      <h2>Review done</h2>
+      <p>${firstTime} of ${ids.length} right the first time.${st.lapsed.size ? ` The other ${st.lapsed.size} come back tomorrow.` : ""}</p>
+      <div class="actions">
+        ${left ? `<button class="btn primary" id="more" type="button">Review ${left} more</button>` : ""}
+        <a class="btn${left ? "" : " primary"}" href="#course">Course</a>
+      </div>
+    </div>`;
+    const more = $("#more");
+    if (more) more.addEventListener("click", () => { viewReview(); window.scrollTo(0, 0); });
+    window.scrollTo(0, 0);
+  });
+}
+
+function viewAlphabet() {
+  app.innerHTML = `
+    <h1>Alphabet</h1>
+    <p class="note">All 24 letters in order, with the sounds this course uses.</p>
+    ${letterTable(() => true)}
+    <h2>Diphthongs</h2>
+    ${diphTable(DIPHS)}
+    <h2>Marks</h2>
+    <div class="lesson-body">${P(`<p>Smooth breathing ἀ is silent; rough breathing ἁ adds h. Any accent (ά ὰ ᾶ) marks the stressed syllable. ; is a question mark; · is a colon or semicolon.</p>`)}</div>
+    <h2>Keyboard</h2>
+    <p class="note">Practice writing Greek here. Tap a letter, then its breathing, then its accent.</p>
+    <div class="pad">
+      <div class="typed" id="pad" tabindex="0" lang="grc" aria-label="Greek text"></div>
+      <p class="kb-msg" id="padmsg"></p>
+      <div id="padkb"></div>
+      <button class="btn" id="padclear" type="button">Clear</button>
+    </div>`;
+  const pad = $("#pad"), area = $(".pad");
+  const kb = Keyboard($("#padkb"), { display: pad, msg: $("#padmsg"), allowSpace: true });
+  area.addEventListener("click", e => { if (e.target.closest(".key")) pad.focus({ preventScroll: true }); });
+  $("#padclear").addEventListener("click", () => kb.clear());
+  keyHandler = e => { if (area.contains(document.activeElement)) kb.handleKey(e); };
+}
+
+/* =========================================================
+   Router
+   ========================================================= */
+function route() {
+  keyHandler = null;
+  const h = (location.hash || "#course").slice(1);
+  let nav = "course";
+  if (h === "review") { nav = "review"; viewReview(); }
+  else if (h === "alphabet") { nav = "alphabet"; viewAlphabet(); }
+  else if (h.startsWith("lesson-")) viewLesson(h.slice(7));
+  else viewCourse();
+  $$("nav a").forEach(a => {
+    if (a.dataset.nav === nav) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  });
+  updateBadge();
+  window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
