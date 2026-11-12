@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alphabet bubbles: Attic Greek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600&family=GFS+Didot&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDF0F3;
+  --surface: #FFFFFF;
+  --ink: #171A33;
+  --muted: #5A6078;
+  --line: #C9CED8;
+  --accent: #2F5FA8;
+  --good: #1F7A58;
+  --bad: #B23A26;
+
+  /* pigments: one per sound class, same in both themes */
+  --ochre: #E3AE3F;
+  --cinnabar: #CC4A33;
+  --blue: #2F6DB5;
+  --malachite: #2C8C69;
+  --murex: #7E4BA0;
+  --bone: #E8E1CF;
+  --pigment-ink: #171A33;
+
+  --greek: "GFS Didot", "Noto Serif", Georgia, "Times New Roman", serif;
+  --ui: "Commissioner", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #12142A;
+    --surface: #1C1F3D;
+    --ink: #ECEEF5;
+    --muted: #A2A8C2;
+    --line: #343862;
+    --accent: #8FB2EE;
+    --good: #6FCFA6;
+    --bad: #F08A76;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #12142A;
+  --surface: #1C1F3D;
+  --ink: #ECEEF5;
+  --muted: #A2A8C2;
+  --line: #343862;
+  --accent: #8FB2EE;
+  --good: #6FCFA6;
+  --bad: #F08A76;
+}
+
+*, *::before, *::after { box-sizing: inherit; }
+html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: 1rem;
+  line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+.app { height: 100%; max-width: 32.5rem; margin: 0 auto; display: flex; flex-direction: column; }
+
+/* ---------- home ---------- */
+.home { flex: 1; min-height: 0; overflow-y: auto; padding: 1.5rem 1.25rem 2rem; }
+.home h1 {
+  font-family: var(--greek);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 13vw, 4rem);
+  line-height: 1;
+  margin: 1rem 0 0.25rem;
+  letter-spacing: 0.01em;
+}
+.home .translit { color: var(--muted); font-style: italic; margin: 0 0 1rem; }
+.home .lede { margin: 0 0 0.75rem; max-width: 34em; }
+.home .how { color: var(--muted); margin: 0 0 1.25rem; max-width: 34em; }
+.row-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.btn {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.levels { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.levels li { border-bottom: 1px solid var(--line); }
+.level {
+  display: grid;
+  grid-template-columns: 2rem 1fr auto;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 0.8rem 0.25rem;
+}
+.level:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.level .num { color: var(--muted); font-variant-numeric: tabular-nums; }
+.level .name { font-weight: 600; }
+.level .sample { grid-column: 2; font-family: var(--greek); font-size: 1.15rem; color: var(--muted); letter-spacing: 0.08em; }
+.level .stars { color: var(--accent); letter-spacing: 0.1em; white-space: nowrap; }
+
+/* ---------- game ---------- */
+.game { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.bar {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 0.75rem 0.25rem;
+}
+.bar .title { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar .score { font-variant-numeric: tabular-nums; color: var(--muted); }
+.bar .btn { padding: 0.3rem 0.8rem; font-size: 0.9rem; }
+.ask { padding: 0.25rem 0.75rem 0.5rem; text-align: center; }
+.ask-line { margin: 0; display: flex; justify-content: center; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
+.ask-lead { color: var(--muted); }
+.ask-main { font-size: 1.75rem; font-weight: 600; line-height: 1.15; }
+.ask-main.greek { font-family: var(--greek); font-weight: 400; font-size: 2.4rem; line-height: 1; }
+.feedback { margin: 0.15rem 0 0; min-height: 1.45em; font-size: 0.95rem; color: var(--muted); }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.feedback .g { font-family: var(--greek); font-size: 1.25em; line-height: 1; }
+.stage { flex: 1; min-height: 0; position: relative; overflow: hidden; }
+.stage canvas {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  touch-action: none; display: block;
+  -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- dialogs ---------- */
+dialog {
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 1.25rem;
+  width: min(30rem, calc(100vw - 2rem));
+  max-height: calc(100% - 2rem);
+}
+dialog::backdrop { background: rgba(10, 12, 30, 0.55); }
+dialog h2 { margin: 0 0 0.5rem; font-size: 1.35rem; line-height: 1.2; }
+dialog p { margin: 0 0 0.75rem; }
+.dialog-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+.big-stars { font-size: 1.75rem; color: var(--accent); letter-spacing: 0.15em; margin: 0 0 0.5rem; }
+.review { list-style: none; padding: 0; margin: 0 0 0.5rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.review li { border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.2rem 0.6rem; display: flex; align-items: baseline; gap: 0.4rem; }
+.review .g { font-family: var(--greek); font-size: 1.4rem; line-height: 1.2; }
+
+.chart-wrap { overflow-x: auto; }
+table.chart { border-collapse: collapse; width: 100%; }
+table.chart th { text-align: left; font-weight: 500; color: var(--muted); font-size: 0.85rem; padding: 0.25rem 0.5rem 0.25rem 0; border-bottom: 1px solid var(--line); }
+table.chart td { padding: 0.3rem 0.5rem 0.3rem 0; border-bottom: 1px solid var(--line); vertical-align: baseline; }
+table.chart td.g { font-family: var(--greek); font-size: 1.5rem; line-height: 1.2; white-space: nowrap; }
+.dot { display: inline-block; width: 0.7rem; height: 0.7rem; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); vertical-align: baseline; margin-right: 0.35rem; }
+.legend { list-style: none; padding: 0; margin: 0 0 1rem; display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.9rem; }
+.note { color: var(--muted); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <main class="home" id="home">
+    <h1 lang="grc" aria-label="alphabetos, the alphabet">ἀλφάβητος</h1>
+    <p class="translit">alphábētos, the alphabet</p>
+    <p class="lede">Learn the 24 letters of Attic Greek by shooting bubbles.</p>
+    <p class="how">A letter is named at the top of the screen. Aim and shoot the bubble that shows it. A wrong shot sticks to the board, and every third miss drops a new row. Clear the board before the bubbles reach the line.</p>
+    <div class="row-actions">
+      <button class="btn" type="button" data-open-chart>Show the alphabet</button>
+    </div>
+    <ol class="levels" id="levels"></ol>
+  </main>
+
+  <main class="game" id="game" hidden>
+    <div class="bar">
+      <button class="btn" type="button" id="toHome">Levels</button>
+      <span class="title" id="lvTitle"></span>
+      <span class="score" id="score">0</span>
+      <button class="btn" type="button" data-open-chart>Alphabet</button>
+    </div>
+    <div class="ask">
+      <p class="ask-line"><span class="ask-lead" id="askLead">Find</span> <span class="ask-main" id="askMain"></span></p>
+      <p class="feedback" id="feedback" aria-live="polite"></p>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="cv" aria-label="Bubble board. Drag to aim and release to shoot, or use the left and right arrow keys and the space bar."></canvas>
+    </div>
+  </main>
+</div>
+
+<dialog id="chart" aria-labelledby="chartH">
+  <h2 id="chartH">The Attic alphabet</h2>
+  <ul class="legend" id="legend"></ul>
+  <div class="chart-wrap">
+    <table class="chart">
+      <thead><tr><th>Letter</th><th>Name</th><th>Sound</th></tr></thead>
+      <tbody id="chartBody"></tbody>
+    </table>
+  </div>
+  <p class="note">Sigma is written ς at the end of a word and σ everywhere else. The sounds given are the reconstructed pronunciation of classical Athens, so θ, φ and χ are breathy t, p and k, not the th, f and ch of modern Greek. Bubble colours follow the sound classes above.</p>
+  <div class="dialog-actions"><button class="btn primary" type="button" data-close>Close</button></div>
+</dialog>
+
+<dialog id="result" aria-labelledby="resH">
+  <h2 id="resH"></h2>
+  <p class="big-stars" id="resStars"></p>
+  <p id="resLine"></p>
+  <div id="resReviewWrap">
+    <p class="note" id="resReviewLead">Letters to look at again</p>
+    <ul class="review" id="resReview"></ul>
+  </div>
+  <div class="dialog-actions">
+    <button class="btn primary" type="button" id="resPrimary"></button>
+    <button class="btn" type="button" id="resAgain">Play this level again</button>
+    <button class="btn" type="button" id="resHome">Levels</button>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- data ----------
+  // k = sound class: v vowel, p labial, t dental, k velar, l liquid or nasal, s sibilant or double consonant
+  const L = [
+    { u: 'Α', l: 'α', n: 'alpha',   s: 'a, as in father',                 k: 'v' },
+    { u: 'Β', l: 'β', n: 'beta',    s: 'b, as in bed',                    k: 'p' },
+    { u: 'Γ', l: 'γ', n: 'gamma',   s: 'hard g, as in go',                k: 'k' },
+    { u: 'Δ', l: 'δ', n: 'delta',   s: 'd, as in dog',                    k: 't' },
+    { u: 'Ε', l: 'ε', n: 'epsilon', s: 'short e, as in pet',              k: 'v' },
+    { u: 'Ζ', l: 'ζ', n: 'zeta',    s: 'zd, as in wisdom',                k: 's' },
+    { u: 'Η', l: 'η', n: 'eta',     s: 'long open e, as in air',          k: 'v' },
+    { u: 'Θ', l: 'θ', n: 'theta',   s: 'breathy t, as in top',            k: 't' },
+    { u: 'Ι', l: 'ι', n: 'iota',    s: 'i, as in machine',                k: 'v' },
+    { u: 'Κ', l: 'κ', n: 'kappa',   s: 'plain k, as in skin',             k: 'k' },
+    { u: 'Λ', l: 'λ', n: 'lambda',  s: 'l, as in lip',                    k: 'l' },
+    { u: 'Μ', l: 'μ', n: 'mu',      s: 'm, as in map',                    k: 'l' },
+    { u: 'Ν', l: 'ν', n: 'nu',      s: 'n, as in net',                    k: 'l' },
+    { u: 'Ξ', l: 'ξ', n: 'xi',      s: 'ks, as in fox',                   k: 's' },
+    { u: 'Ο', l: 'ο', n: 'omicron', s: 'short o, as in got',              k: 'v' },
+    { u: 'Π', l: 'π', n: 'pi',      s: 'plain p, as in spin',             k: 'p' },
+    { u: 'Ρ', l: 'ρ', n: 'rho',     s: 'trilled r',                       k: 'l' },
+    { u: 'Σ', l: 'σ', n: 'sigma',   s: 's, as in sun',                    k: 's' },
+    { u: 'Τ', l: 'τ', n: 'tau',     s: 'plain t, as in stop',             k: 't' },
+    { u: 'Υ', l: 'υ', n: 'upsilon', s: 'French u, as in lune',            k: 'v' },
+    { u: 'Φ', l: 'φ', n: 'phi',     s: 'breathy p, as in pot',            k: 'p' },
+    { u: 'Χ', l: 'χ', n: 'chi',     s: 'breathy k, as in cat',            k: 'k' },
+    { u: 'Ψ', l: 'ψ', n: 'psi',     s: 'ps, as in lapse',                 k: 's' },
+    { u: 'Ω', l: 'ω', n: 'omega',   s: 'long open o, as in saw',          k: 'v' }
+  ];
+  const SIGMA = 17;
+
+  const CLASSES = {
+    v: { label: 'Vowels',                        cssVar: '--ochre',     light: false },
+    p: { label: 'Lip sounds (π β φ)',            cssVar: '--cinnabar',  light: true  },
+    t: { label: 'Tooth sounds (τ δ θ)',          cssVar: '--blue',      light: true  },
+    k: { label: 'Throat sounds (κ γ χ)',         cssVar: '--malachite', light: true  },
+    l: { label: 'Liquids and nasals (λ μ ν ρ)',  cssVar: '--murex',     light: true  },
+    s: { label: 'Sigma and doubles (σ ζ ξ ψ)',   cssVar: '--bone',      light: false }
+  };
+
+  const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+  // ask: what the prompt shows. show: which case the bubbles carry.
+  const LEVELS = [
+    { name: 'Alpha to zeta',             letters: range(0, 5),   show: 'lower', ask: 'name',  rows: 5 },
+    { name: 'Eta to mu',                 letters: range(6, 11),  show: 'lower', ask: 'name',  rows: 5 },
+    { name: 'Alpha to mu together',      letters: range(0, 11),  show: 'lower', ask: 'name',  rows: 5 },
+    { name: 'Nu to sigma',               letters: range(12, 17), show: 'lower', ask: 'name',  rows: 5 },
+    { name: 'Tau to omega',              letters: range(18, 23), show: 'lower', ask: 'name',  rows: 5 },
+    { name: 'All 24, lowercase',         letters: range(0, 23),  show: 'lower', ask: 'name',  rows: 6 },
+    { name: 'Capitals, alpha to mu',     letters: range(0, 11),  show: 'upper', ask: 'name',  rows: 5 },
+    { name: 'Capitals, nu to omega',     letters: range(12, 23), show: 'upper', ask: 'name',  rows: 5 },
+    { name: 'Capital to lowercase',      letters: range(0, 23),  show: 'lower', ask: 'upper', rows: 6 },
+    { name: 'Letters by sound',          letters: range(0, 23),  show: 'lower', ask: 'sound', rows: 6 }
+  ];
+
+  const COLS = 8;
+  const MISSES_PER_ROW = 3;
+  const STORE_KEY = 'atticAlphabetBubbles.v1';
+
+  // ---------- storage ----------
+  let saved = { stars: {} };
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) { const p = JSON.parse(raw); if (p && typeof p.stars === 'object') saved = p; }
+  } catch (e) { /* storage unavailable: play without saving */ }
+  function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(saved)); } catch (e) {} }
+
+  // ---------- dom ----------
+  const $ = id => document.getElementById(id);
+  const home = $('home'), game = $('game'), stage = $('stage'), cv = $('cv'), ctx = cv.getContext('2d');
+  const chart = $('chart'), result = $('result');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const starString = n => '★'.repeat(n) + '☆'.repeat(3 - n);
+
+  function renderLevels() {
+    const ol = $('levels');
+    ol.textContent = '';
+    LEVELS.forEach((lv, i) => {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'level';
+      const num = document.createElement('span'); num.className = 'num'; num.textContent = (i + 1) + '.';
+      const name = document.createElement('span'); name.className = 'name'; name.textContent = lv.name;
+      const stars = document.createElement('span'); stars.className = 'stars';
+      const st = saved.stars[i] || 0;
+      stars.textContent = st ? starString(st) : '';
+      if (st) stars.setAttribute('aria-label', st + ' of 3 stars');
+      const sample = document.createElement('span'); sample.className = 'sample'; sample.lang = 'grc';
+      const pick = lv.letters.length > 12 ? [lv.letters[0], lv.letters[lv.letters.length - 1]] : lv.letters;
+      const glyphs = pick.map(x => lv.show === 'upper' ? L[x].u : L[x].l);
+      sample.textContent = lv.letters.length > 12 ? glyphs[0] + ' … ' + glyphs[1] : glyphs.join(' ');
+      if (lv.ask === 'sound') sample.textContent = 'zd, ks, ps …';
+      if (lv.ask === 'upper') sample.textContent = 'Δ to δ';
+      b.append(num, name, stars, sample);
+      b.addEventListener('click', () => startLevel(i));
+      li.append(b); ol.append(li);
+    });
+  }
+
+  function renderChart() {
+    const legend = $('legend');
+    Object.keys(CLASSES).forEach(k => {
+      const li = document.createElement('li');
+      const d = document.createElement('span'); d.className = 'dot'; d.style.background = 'var(' + CLASSES[k].cssVar + ')';
+      li.append(d, document.createTextNode(CLASSES[k].label));
+      legend.append(li);
+    });
+    const body = $('chartBody');
+    L.forEach((x, i) => {
+      const tr = document.createElement('tr');
+      const g = document.createElement('td'); g.className = 'g'; g.lang = 'grc';
+      g.textContent = x.u + ' ' + x.l + (i === SIGMA ? ' ς' : '');
+      const n = document.createElement('td');
+      const d = document.createElement('span'); d.className = 'dot'; d.style.background = 'var(' + CLASSES[x.k].cssVar + ')';
+      n.append(d, document.createTextNode(x.n));
+      const s = document.createElement('td'); s.textContent = x.s;
+      tr.append(g, n, s); body.append(tr);
+    });
+  }
+
+  document.querySelectorAll('[data-open-chart]').forEach(b => b.addEventListener('click', () => chart.showModal()));
+  document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+  $('toHome').addEventListener('click', goHome);
+  $('resHome').addEventListener('click', () => { result.close(); goHome(); });
+  $('resAgain').addEventListener('click', () => { result.close(); startLevel(G.lv); });
+  result.addEventListener('cancel', e => e.preventDefault());
+
+  function goHome() {
+    G = null;
+    game.hidden = true; home.hidden = false;
+    renderLevels();
+  }
+
+  // ---------- theme colours for canvas ----------
+  let T = {};
+  function readTheme() {
+    const cs = getComputedStyle(document.documentElement);
+    const v = n => cs.getPropertyValue(n).trim();
+    T = { ink: v('--ink'), muted: v('--muted'), line: v('--line'), bg: v('--bg'), accent: v('--accent'),
+          bad: v('--bad'), pigmentInk: v('--pigment-ink'), cls: {} };
+    Object.keys(CLASSES).forEach(k => { T.cls[k] = v(CLASSES[k].cssVar); });
+  }
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTheme);
+  new MutationObserver(readTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  // ---------- geometry ----------
+  const geom = { W: 0, H: 0, r: 20, rowH: 0, top: 6, lx: 0, ly: 0, deadY: 0, maxRows: 11 };
+  function layout() {
+    const sw = stage.clientWidth, sh = stage.clientHeight;
+    if (!sw || !sh) return;
+    const r = Math.max(12, Math.min(sw / (2 * COLS + 1), sh / 24, 30));
+    geom.r = r; geom.W = r * (2 * COLS + 1); geom.H = sh;
+    geom.rowH = r * Math.sqrt(3);
+    geom.lx = geom.W / 2; geom.ly = sh - r * 1.7;
+    geom.deadY = geom.ly - r * 2.6;
+    geom.maxRows = Math.max(8, Math.floor((geom.deadY - geom.top) / geom.rowH));
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    cv.style.width = geom.W + 'px'; cv.style.height = geom.H + 'px';
+    cv.width = Math.round(geom.W * dpr); cv.height = Math.round(geom.H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  new ResizeObserver(layout).observe(stage);
+
+  // ---------- game state ----------
+  let G = null;
+
+  const shiftOf = ri => (G.shift0 ? 1 : 0) ^ (ri & 1);
+  function cellXY(ri, c) {
+    return { x: geom.r + c * 2 * geom.r + (shiftOf(ri) ? geom.r : 0), y: geom.top + geom.r + ri * geom.rowH };
+  }
+  function neigh(ri, c) {
+    const a = shiftOf(ri) ? [c, c + 1] : [c - 1, c];
+    return [[ri, c - 1], [ri, c + 1], [ri - 1, a[0]], [ri - 1, a[1]], [ri + 1, a[0]], [ri + 1, a[1]]]
+      .filter(p => p[0] >= 0 && p[1] >= 0 && p[1] < COLS);
+  }
+  const at = (ri, c) => (G.rows[ri] ? G.rows[ri][c] : null);
+
+  function makeBubble(li) {
+    let g = G.def.show === 'upper' ? L[li].u : L[li].l;
+    if (li === SIGMA && G.def.show === 'lower' && Math.random() < 0.35) g = 'ς';
+    return { li: li, g: g };
+  }
+  function shuffled(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+
+  function startLevel(i) {
+    const def = LEVELS[i];
+    G = { lv: i, def: def, rows: [], shift0: false, score: 0, streak: 0, hits: 0, misses: 0, missRun: 0,
+          target: null, afterMiss: false, retry: [], missed: {}, shot: null, fx: [], pushOff: 0,
+          over: false, angle: Math.PI / 2, down: false };
+    // build the board in small same-letter clusters, making sure every letter appears
+    let bag = shuffled(def.letters);
+    const draw = () => { if (!bag.length) bag = shuffled(def.letters); return bag.pop(); };
+    for (let ri = 0; ri < def.rows; ri++) {
+      G.rows.push(new Array(COLS).fill(null));
+      for (let c = 0; c < COLS; c++) {
+        const near = neigh(ri, c).map(p => at(p[0], p[1])).filter(Boolean);
+        const li = (near.length && Math.random() < 0.42) ? near[Math.floor(Math.random() * near.length)].li : draw();
+        G.rows[ri][c] = makeBubble(li);
+      }
+    }
+    home.hidden = true; game.hidden = false;
+    $('lvTitle').textContent = (i + 1) + '. ' + def.name;
+    $('score').textContent = '0';
+    setFeedback('', '');
+    readTheme(); layout();
+    pickTarget();
+  }
+
+  function exposedLetters() {
+    const set = new Set();
+    G.rows.forEach((row, ri) => row.forEach((b, c) => {
+      if (!b) return;
+      const below = neigh(ri, c).filter(p => p[0] === ri + 1);
+      if (below.some(p => !at(p[0], p[1]))) set.add(b.li);
+    }));
+    return Array.from(set);
+  }
+
+  function pickTarget() {
+    const ex = exposedLetters();
+    if (!ex.length) return;
+    let choice = null;
+    if (!G.afterMiss) {
+      const idx = G.retry.findIndex(li => ex.includes(li));
+      if (idx >= 0) choice = G.retry.splice(idx, 1)[0];
+    }
+    if (choice === null) {
+      let pool = ex.filter(li => li !== G.target);
+      if (!pool.length) pool = ex;
+      const w = pool.map(li => 1 + 2 * (G.missed[li] || 0));
+      let x = Math.random() * w.reduce((a, b) => a + b, 0);
+      choice = pool[pool.length - 1];
+      for (let i = 0; i < pool.length; i++) { x -= w[i]; if (x <= 0) { choice = pool[i]; break; } }
+    }
+    G.target = choice;
+    const main = $('askMain'), lead = $('askLead'), t = L[choice];
+    main.classList.toggle('greek', G.def.ask === 'upper');
+    if (G.def.ask === 'name') { lead.textContent = 'Find'; main.textContent = t.n; main.removeAttribute('lang'); }
+    else if (G.def.ask === 'sound') { lead.textContent = 'Find the letter for'; main.textContent = t.s; main.removeAttribute('lang'); }
+    else { lead.textContent = 'Find the lowercase of'; main.textContent = t.u; main.lang = 'grc'; }
+  }
+
+  function setFeedback(kind, parts) {
+    const el = $('feedback');
+    el.className = 'feedback' + (kind ? ' ' + kind : '');
+    el.textContent = '';
+    if (!parts) return;
+    // parts: array of strings; a string wrapped as {g:'δ'} is set in the Greek face
+    parts.forEach(p => {
+      if (typeof p === 'string') el.append(document.createTextNode(p));
+      else { const s = document.createElement('span'); s.className = 'g'; s.lang = 'grc'; s.textContent = p.g; el.append(s); }
+    });
+  }
+
+  // ---------- shooting ----------
+  function trace(angle) {
+    const g = geom, step = g.r * 0.25;
+    let x = g.lx, y = g.ly, dx = Math.cos(angle) * step, dy = -Math.sin(angle) * step;
+    const pts = [{ x: x, y: y }], dots = [];
+    const hitD2 = Math.pow(g.r * 1.75, 2);
+    const boardBottom = g.top + G.rows.length * g.rowH + g.r * 2;
+    for (let i = 0; i < 4000; i++) {
+      x += dx; y += dy;
+      if (x < g.r) { x = 2 * g.r - x; dx = -dx; pts.push({ x: x, y: y }); }
+      else if (x > g.W - g.r) { x = 2 * (g.W - g.r) - x; dx = -dx; pts.push({ x: x, y: y }); }
+      if (i % 3 === 2) dots.push({ x: x, y: y });
+      if (y < boardBottom) {
+        let best = null, bd = hitD2;
+        for (let ri = 0; ri < G.rows.length; ri++) {
+          const cy = g.top + g.r + ri * g.rowH;
+          if (Math.abs(cy - y) > g.r * 2) continue;
+          for (let c = 0; c < COLS; c++) {
+            if (!G.rows[ri][c]) continue;
+            const p = cellXY(ri, c), d2 = (p.x - x) * (p.x - x) + (p.y - y) * (p.y - y);
+            if (d2 < bd) { bd = d2; best = { ri: ri, c: c }; }
+          }
+        }
+        if (best) { pts.push({ x: x, y: y }); return { pts: pts, dots: dots, hit: best, x: x, y: y }; }
+      }
+      if (y <= g.top + g.r) { pts.push({ x: x, y: y }); return { pts: pts, dots: dots, hit: null, x: x, y: y }; }
+    }
+    pts.push({ x: x, y: y });
+    return { pts: pts, dots: dots, hit: null, x: x, y: y };
+  }
+
+  function fire() {
+    if (!G || G.over || G.shot || result.open || chart.open) return;
+    const res = trace(G.angle);
+    G.shot = { res: res, seg: 0, x: res.pts[0].x, y: res.pts[0].y };
+    if (reduceMotion.matches) { G.shot = null; resolve(res); }
+  }
+
+  function advanceShot(dt) {
+    const s = G.shot; let left = geom.r * 52 * dt;
+    const pts = s.res.pts;
+    while (left > 0 && s.seg < pts.length - 1) {
+      const b = pts[s.seg + 1], dx = b.x - s.x, dy = b.y - s.y, d = Math.hypot(dx, dy);
+      if (d <= left) { s.x = b.x; s.y = b.y; s.seg++; left -= d; }
+      else { s.x += dx / d * left; s.y += dy / d * left; left = 0; }
+    }
+    if (s.seg >= pts.length - 1) { G.shot = null; resolve(s.res); }
+  }
+
+  function cluster(ri, c) {
+    const li = at(ri, c).li, seen = new Set([ri + ',' + c]), out = [[ri, c]], q = [[ri, c]];
+    while (q.length) {
+      const cur = q.pop();
+      neigh(cur[0], cur[1]).forEach(p => {
+        const k = p[0] + ',' + p[1], b = at(p[0], p[1]);
+        if (b && b.li === li && !seen.has(k)) { seen.add(k); out.push(p); q.push(p); }
+      });
+    }
+    return out;
+  }
+
+  function dropFloaters() {
+    const seen = new Set(), q = [];
+    if (G.rows[0]) G.rows[0].forEach((b, c) => { if (b) { seen.add('0,' + c); q.push([0, c]); } });
+    while (q.length) {
+      const cur = q.pop();
+      neigh(cur[0], cur[1]).forEach(p => {
+        const k = p[0] + ',' + p[1];
+        if (at(p[0], p[1]) && !seen.has(k)) { seen.add(k); q.push(p); }
+      });
+    }
+    let n = 0;
+    G.rows.forEach((row, ri) => row.forEach((b, c) => {
+      if (b && !seen.has(ri + ',' + c)) {
+        const p = cellXY(ri, c);
+        G.fx.push({ type: 'fall', x: p.x, y: p.y, vy: 0, b: b, t: 0 });
+        row[c] = null; n++;
+      }
+    }));
+    return n;
+  }
+
+  function trimRows() {
+    while (G.rows.length && G.rows[G.rows.length - 1].every(b => !b)) G.rows.pop();
+  }
+
+  function pushRow() {
+    const row = [];
+    for (let c = 0; c < COLS; c++) row.push(makeBubble(G.def.letters[Math.floor(Math.random() * G.def.letters.length)]));
+    G.rows.unshift(row);
+    G.shift0 = !G.shift0;
+    G.pushOff = reduceMotion.matches ? 0 : -geom.rowH;
+  }
+
+  function resolve(res) {
+    const t = L[G.target], li = G.target;
+    const hitB = res.hit ? at(res.hit.ri, res.hit.c) : null;
+
+    if (hitB && hitB.li === li) {
+      // correct
+      const cells = cluster(res.hit.ri, res.hit.c);
+      cells.forEach(p => {
+        const xy = cellXY(p[0], p[1]);
+        G.fx.push({ type: 'pop', x: xy.x, y: xy.y, b: G.rows[p[0]][p[1]], t: 0 });
+        G.rows[p[0]][p[1]] = null;
+      });
+      const dropped = dropFloaters();
+      G.hits++; G.streak++;
+      G.score += 10 * Math.min(G.streak, 5) + 5 * (cells.length - 1) + 10 * dropped;
+      G.afterMiss = false;
+      const tail = hitB.g === 'ς' ? ', the form used at the end of a word.' : ': ' + t.s + '.';
+      setFeedback('good', [{ g: hitB.g }, ' is ' + t.n + tail]);
+    } else {
+      // wrong bubble, or nothing hit: the shot sticks and shows the right letter
+      const nb = makeBubble(li);
+      let best = null, bd = Infinity;
+      for (let ri = 0; ri <= G.rows.length; ri++) {
+        for (let c = 0; c < COLS; c++) {
+          if (at(ri, c)) continue;
+          if (ri > 0 && !neigh(ri, c).some(p => at(p[0], p[1]))) continue;
+          const p = cellXY(ri, c), d2 = (p.x - res.x) * (p.x - res.x) + (p.y - res.y) * (p.y - res.y);
+          if (d2 < bd) { bd = d2; best = [ri, c]; }
+        }
+      }
+      if (best) {
+        if (best[0] === G.rows.length) G.rows.push(new Array(COLS).fill(null));
+        G.rows[best[0]][best[1]] = nb;
+      }
+      if (hitB) {
+        const xy = cellXY(res.hit.ri, res.hit.c);
+        G.fx.push({ type: 'ring', x: xy.x, y: xy.y, t: 0 });
+        setFeedback('bad', ['That was ', { g: hitB.g }, ', ' + L[hitB.li].n + '. ' + cap(t.n) + ' looks like ', { g: nb.g }, '.']);
+        G.missed[hitB.li] = (G.missed[hitB.li] || 0) + 1;
+      } else {
+        setFeedback('bad', ['No bubble hit. ' + cap(t.n) + ' looks like ', { g: nb.g }, '.']);
+      }
+      G.missed[li] = (G.missed[li] || 0) + 1;
+      if (!G.retry.includes(li)) G.retry.push(li);
+      G.misses++; G.streak = 0; G.afterMiss = true;
+      G.missRun++;
+      if (G.missRun >= MISSES_PER_ROW) { G.missRun = 0; pushRow(); }
+    }
+
+    $('score').textContent = String(G.score);
+    trimRows();
+    if (!G.rows.length) return finish(true);
+    if (G.rows.length > geom.maxRows) return finish(false);
+    pickTarget();
+  }
+
+  function finish(won) {
+    G.over = true;
+    const total = G.hits + G.misses, acc = total ? G.hits / total : 0;
+    const stars = won ? (acc >= 0.9 ? 3 : acc >= 0.75 ? 2 : 1) : 0;
+    if (won && stars > (saved.stars[G.lv] || 0)) { saved.stars[G.lv] = stars; save(); }
+    $('resH').textContent = won ? 'Board cleared' : 'The bubbles reached the line';
+    $('resStars').textContent = won ? starString(stars) : '';
+    $('resStars').hidden = !won;
+    if (won) $('resStars').setAttribute('aria-label', stars + ' of 3 stars');
+    $('resLine').textContent = G.hits + ' right out of ' + total + ' shots (' + Math.round(acc * 100) + '%). Score ' + G.score + '.';
+    const list = $('resReview'); list.textContent = '';
+    const missed = Object.keys(G.missed).map(Number).sort((a, b) => G.missed[b] - G.missed[a]).slice(0, 8);
+    missed.forEach(li => {
+      const el = document.createElement('li');
+      const g = document.createElement('span'); g.className = 'g'; g.lang = 'grc';
+      g.textContent = G.def.show === 'upper' ? L[li].u : (G.def.ask === 'upper' ? L[li].u + ' ' + L[li].l : L[li].l);
+      el.append(g, document.createTextNode(L[li].n));
+      list.append(el);
+    });
+    $('resReviewWrap').hidden = !missed.length;
+    const primary = $('resPrimary'), hasNext = G.lv < LEVELS.length - 1;
+    if (won && hasNext) {
+      primary.hidden = false; primary.textContent = 'Play the next level';
+      primary.onclick = () => { const n = G.lv + 1; result.close(); startLevel(n); };
+      $('resAgain').hidden = false;
+    } else if (!won) {
+      primary.hidden = false; primary.textContent = 'Play this level again';
+      primary.onclick = () => { result.close(); startLevel(G.lv); };
+      $('resAgain').hidden = true;
+    } else {
+      primary.hidden = true; $('resAgain').hidden = false;
+    }
+    setTimeout(() => { if (G && G.over && !result.open) result.showModal(); }, reduceMotion.matches ? 0 : 450);
+  }
+
+  // ---------- input ----------
+  function aimAt(e) {
+    const rect = cv.getBoundingClientRect();
+    const px = e.clientX - rect.left, py = e.clientY - rect.top;
+    let a = Math.atan2(geom.ly - py, px - geom.lx);
+    if (a < -Math.PI / 2) a = Math.PI; else if (a < 0) a = 0;
+    G.angle = Math.max(0.16, Math.min(Math.PI - 0.16, a));
+  }
+  cv.addEventListener('pointerdown', e => {
+    if (!G || G.over) return;
+    e.preventDefault();
+    G.down = true;
+    try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+    aimAt(e);
+  });
+  cv.addEventListener('pointermove', e => {
+    if (!G || G.over) return;
+    if (e.pointerType === 'mouse' || G.down) aimAt(e);
+  });
+  cv.addEventListener('pointerup', e => {
+    if (!G || !G.down) return;
+    G.down = false;
+    aimAt(e); fire();
+  });
+  cv.addEventListener('pointercancel', () => { if (G) G.down = false; });
+  document.addEventListener('keydown', e => {
+    if (!G || G.over || game.hidden || chart.open || result.open) return;
+    const onButton = e.target && e.target.tagName === 'BUTTON';
+    if (e.key === 'ArrowLeft') { G.angle = Math.min(Math.PI - 0.16, G.angle + 0.035); e.preventDefault(); }
+    else if (e.key === 'ArrowRight') { G.angle = Math.max(0.16, G.angle - 0.035); e.preventDefault(); }
+    else if ((e.key === ' ' || e.key === 'Enter') && !onButton) { fire(); e.preventDefault(); }
+  });
+
+  // ---------- drawing ----------
+  function glyphFont(size) { return size + 'px "GFS Didot", "Noto Serif", Georgia, "Times New Roman", serif'; }
+
+  function drawBubble(x, y, b, scale, alpha) {
+    const r = geom.r * 0.94 * (scale || 1), k = L[b.li].k;
+    ctx.globalAlpha = alpha === undefined ? 1 : alpha;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = T.cls[k]; ctx.fill();
+    ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,0.28)'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, r * 0.78, Math.PI * 1.1, Math.PI * 1.55);
+    ctx.lineWidth = Math.max(1.5, r * 0.09); ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(255,255,255,0.38)'; ctx.stroke();
+    ctx.fillStyle = CLASSES[k].light ? '#FFFFFF' : T.pigmentInk;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    const upper = b.g === L[b.li].u;
+    ctx.font = glyphFont(r * (upper ? 1.12 : 1.2));
+    ctx.fillText(b.g, x, y + r * (upper ? 0.4 : 0.3));
+    ctx.globalAlpha = 1;
+  }
+
+  function draw(dt) {
+    const g = geom;
+    ctx.clearRect(0, 0, g.W, g.H);
+    if (!G) return;
+
+    if (G.pushOff < 0) G.pushOff = Math.min(0, G.pushOff + g.rowH * dt * 5);
+
+    // the line the bubbles must not reach
+    ctx.setLineDash([4, 6]); ctx.lineWidth = 1; ctx.strokeStyle = T.line;
+    ctx.beginPath(); ctx.moveTo(0, g.deadY); ctx.lineTo(g.W, g.deadY); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // board
+    for (let ri = 0; ri < G.rows.length; ri++) {
+      for (let c = 0; c < COLS; c++) {
+        const b = G.rows[ri][c]; if (!b) continue;
+        const p = cellXY(ri, c);
+        drawBubble(p.x, p.y + G.pushOff, b);
+      }
+    }
+
+    // aim guide
+    if (!G.shot && !G.over) {
+      const tr = trace(G.angle);
+      ctx.fillStyle = T.muted;
+      for (let i = 1; i < tr.dots.length; i++) {
+        const d = tr.dots[i];
+        ctx.beginPath(); ctx.arc(d.x, d.y, 1.6, 0, Math.PI * 2); ctx.fill();
+      }
+      if (tr.hit) {
+        const p = cellXY(tr.hit.ri, tr.hit.c);
+        ctx.beginPath(); ctx.arc(p.x, p.y, g.r * 1.02, 0, Math.PI * 2);
+        ctx.lineWidth = 2; ctx.strokeStyle = T.ink; ctx.stroke();
+      }
+    }
+
+    // launcher
+    const sx = G.shot ? G.shot.x : g.lx, sy = G.shot ? G.shot.y : g.ly;
+    ctx.beginPath(); ctx.arc(sx, sy, g.r * 0.94, 0, Math.PI * 2);
+    ctx.fillStyle = T.bg; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = T.ink; ctx.stroke();
+    if (G.def.ask === 'upper' && G.target !== null) {
+      ctx.fillStyle = T.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+      ctx.font = glyphFont(g.r * 1.05); ctx.fillText(L[G.target].u, sx, sy + g.r * 0.37);
+    } else {
+      ctx.beginPath(); ctx.arc(sx, sy, g.r * 0.14, 0, Math.PI * 2); ctx.fillStyle = T.ink; ctx.fill();
+    }
+
+    // effects
+    for (let i = G.fx.length - 1; i >= 0; i--) {
+      const f = G.fx[i]; f.t += dt;
+      if (f.type === 'pop') {
+        const k = f.t / 0.22;
+        if (k >= 1) { G.fx.splice(i, 1); continue; }
+        drawBubble(f.x, f.y, f.b, 1 + k * 0.5, 1 - k);
+      } else if (f.type === 'fall') {
+        f.vy += g.r * 90 * dt; f.y += f.vy * dt;
+        if (f.y > g.H + g.r * 2) { G.fx.splice(i, 1); continue; }
+        drawBubble(f.x, f.y, f.b, 1, 0.85);
+      } else if (f.type === 'ring') {
+        const k = f.t / 0.9;
+        if (k >= 1) { G.fx.splice(i, 1); continue; }
+        ctx.globalAlpha = 1 - k;
+        ctx.beginPath(); ctx.arc(f.x, f.y + G.pushOff, g.r * 1.04, 0, Math.PI * 2);
+        ctx.lineWidth = 3; ctx.strokeStyle = T.bad; ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    // status text beside the launcher
+    ctx.fillStyle = T.muted; ctx.textBaseline = 'alphabetic';
+    ctx.font = Math.max(12, g.r * 0.6) + 'px Commissioner, system-ui, sans-serif';
+    const leftN = MISSES_PER_ROW - G.missRun;
+    ctx.textAlign = 'left';
+    ctx.fillText('New row in ' + leftN + (leftN === 1 ? ' miss' : ' misses'), 6, g.H - 8);
+    if (G.streak >= 2) { ctx.textAlign = 'right'; ctx.fillText(G.streak + ' in a row', g.W - 6, g.H - 8); }
+  }
+
+  let last = 0;
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+    if (G && !game.hidden) {
+      if (G.shot) advanceShot(dt);
+      if (G) draw(dt);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- go ----------
+  renderLevels(); renderChart(); readTheme();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
